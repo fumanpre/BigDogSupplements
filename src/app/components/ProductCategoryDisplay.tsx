@@ -80,7 +80,9 @@ export default async function ProductCategoryDisplay({
               <ProductCard
                 product={{
                   ...product,
-                  flavors: product.flavors, // keep full flavors array
+                  imageUrl: topFlavor?.imageUrlProduct || '',
+                  price: topFlavor?.price || 0,
+                  salePrice: topFlavor?.salePrice,
                 }}
               />
             </div>
