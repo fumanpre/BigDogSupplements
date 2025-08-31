@@ -1,26 +1,30 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@import 'tailwindcss';
+@plugin "daisyui" {
+  themes: light --default;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@media (min-width: 420px) and (max-width: 639px) {
+  .custom-min-2 {
+    width: 48% !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (max-width: 500px) {
+  .custom-min-1 {
+    width: 48% !important;
+  }
+}
+
+html {
+  scroll-padding-top: 103px; /* adjust this to your header height or desired offset */
+  scroll-behavior: smooth; /* optional for smooth scrolling */
+}
+
+li:hover {
+  font-weight: 900;
+  text-decoration: underline;
+}
+
+li {
+  padding: 4px 0 4px 4px;
 }
