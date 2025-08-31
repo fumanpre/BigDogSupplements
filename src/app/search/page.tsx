@@ -10,19 +10,7 @@ export default async function searchPage({
 }: searchPageProps) {
   let products: any[] = []
 
-  // if (query.toLowerCase() === 'best sellers') {
-  //   // 🔥 Special query for top sellers
-  //   products = await prisma.product.findMany({
-  //     orderBy: { total_census_buyers: 'desc' },
-  //     distinct: ['name'], // avoid duplicates
-  //   })
-  // } else if (query.toLowerCase() === 'sale') {
-  //   products = await prisma.product.findMany({
-  //     where: { newSalePrice: { gt: 0 } },
-  //     orderBy: { newSalePrice: 'desc' },
-  //     distinct: ['name'], // avoid duplicates
-  //   })
-  // } else if (query.toLowerCase() === 'related products') {
+  // }  else if (query.toLowerCase() === 'related products') {
   //   products = await prisma.product.findMany({
   //     where: {
   //       manufacturer: {
@@ -41,7 +29,45 @@ export default async function searchPage({
   //     distinct: ['name'],
   //   })
   // }
-  if (query.toLowerCase() !== '') {
+  if (query.toLowerCase() === 'best sellers') {
+    // 🔥 Special query for top sellers based on flavor popularity
+    const productsWithPopularity = await prisma.product.findMany({
+      include: {
+        flavors: true, // include flavors
+      },
+    })
+
+    // Sort products by the maximum popularity of their flavors
+    products = productsWithPopularity
+      .map((p) => ({
+        ...p,
+        maxPopularity: p.flavors.length
+          ? Math.max(...p.flavors.map((f) => f.popularity || 0))
+          : 0,
+      }))
+      .sort((a, b) => b.maxPopularity - a.maxPopularity)
+  } else if (query.toLowerCase() === 'sale') {
+    const allProducts = await prisma.product.findMany({
+      include: { flavors: true },
+      where: {
+        flavors: { some: { salePrice: { gt: 0 } } },
+      },
+    })
+
+    // Filter flavors with salePrice > 0 and sort products by max salePrice
+    products = allProducts
+      .map((p) => {
+        const saleFlavors = p.flavors.filter(
+          (f) => f.salePrice && f.salePrice > 0
+        )
+        return {
+          ...p,
+          flavors: saleFlavors,
+          maxSalePrice: Math.max(...saleFlavors.map((f) => f.salePrice!)),
+        }
+      })
+      .sort((a, b) => b.maxSalePrice - a.maxSalePrice)
+  } else if (query.toLowerCase() !== '') {
     // 🔎 Regular search with flavors included
     products = await prisma.product.findMany({
       where: {

@@ -11,16 +11,21 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isNew =
     Date.now() - new Date(product.createdAt).getTime() < 1000 * 60 * 60 * 24 * 7
 
-  // Pick the most popular flavor
-  const topFlavor = product.flavors.sort(
-    (a, b) => (b.popularity || 0) - (a.popularity || 0)
-  )[0]
+  // Pick the top flavor: prefer highest popularity and must have an image
+  let topFlavor = product.flavors
+    .filter((f) => f.imageUrlProduct) // only flavors with images
+    .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))[0]
 
-  const price = topFlavor?.price || 0
-  const salePrice = topFlavor?.salePrice
-  const hasSale = salePrice !== undefined && salePrice > 0
+  // Fallback: if none have an image, pick any flavor
+  if (!topFlavor && product.flavors.length > 0) {
+    topFlavor = product.flavors[0]
+  }
+
+  const price = topFlavor?.price ?? 0
+  const salePrice = topFlavor?.salePrice ?? 0
+  const hasSale = salePrice > 0
   const discountPercent = hasSale
-    ? Math.round(((price - (salePrice || 0)) / price) * 100)
+    ? Math.round(((price - salePrice) / price) * 100)
     : 0
 
   return (
@@ -48,16 +53,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </figure>
       <div className="card-body bg-white rounded-b-xl">
-        {hasSale ? (
-          <div className="flex flex-col">
+        <div className="flex flex-col">
+          {hasSale && (
             <span className="text-gray-500 font-light line-through text-md md:text-lg lg:text-xl">
               CAD {price}
             </span>
-            <PriceTag price={salePrice || 0} />
-          </div>
-        ) : (
-          <PriceTag price={price} />
-        )}
+          )}
+          <PriceTag price={hasSale ? salePrice : price} />
+        </div>
         <h2 className="card-title text-sm md:text-lg lg:text-xl font-bold group-hover:underline">
           {product.name}
         </h2>
