@@ -37,7 +37,6 @@ export default async function ProductCategoryDisplay({
       },
     })
 
-    // Filter flavors with salePrice > 0 and sort products by max salePrice
     products = allProducts
       .map((p) => {
         const saleFlavors = p.flavors.filter(
@@ -50,6 +49,40 @@ export default async function ProductCategoryDisplay({
         }
       })
       .sort((a, b) => b.maxSalePrice - a.maxSalePrice)
+      .slice(0, 4)
+  } else if (categoryName === 'Similar Products') {
+    // ✅ Products in the same category but exclude itself
+    const allProducts = await prisma.product.findMany({
+      include: { flavors: true },
+      where: {
+        category: productItself.category,
+        NOT: { id: productItself.id },
+      },
+    })
+
+    products = allProducts
+      .sort((a, b) => {
+        const maxA = Math.max(...a.flavors.map((f) => f.popularity || 0))
+        const maxB = Math.max(...b.flavors.map((f) => f.popularity || 0))
+        return maxB - maxA
+      })
+      .slice(0, 4)
+  } else if (categoryName === productItself.manufacturer) {
+    // ✅ Products from same manufacturer, excluding itself
+    const allProducts = await prisma.product.findMany({
+      include: { flavors: true },
+      where: {
+        manufacturer: productItself.manufacturer,
+        NOT: { id: productItself.id },
+      },
+    })
+
+    products = allProducts
+      .sort((a, b) => {
+        const maxA = Math.max(...a.flavors.map((f) => f.popularity || 0))
+        const maxB = Math.max(...b.flavors.map((f) => f.popularity || 0))
+        return maxB - maxA
+      })
       .slice(0, 4)
   }
 
@@ -80,9 +113,7 @@ export default async function ProductCategoryDisplay({
               <ProductCard
                 product={{
                   ...product,
-                  imageUrl: topFlavor?.imageUrlProduct || '',
-                  price: topFlavor?.price || 0,
-                  salePrice: topFlavor?.salePrice,
+                  flavors: product.flavors, // ✅ keep full flavors
                 }}
               />
             </div>

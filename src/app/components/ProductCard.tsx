@@ -11,15 +11,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isNew =
     Date.now() - new Date(product.createdAt).getTime() < 1000 * 60 * 60 * 24 * 7
 
-  // Pick the top flavor: prefer highest popularity and must have an image
-  let topFlavor = product.flavors
-    .filter((f) => f.imageUrlProduct) // only flavors with images
+  // Pick the most popular flavor that has a valid image
+  const topFlavor = product.flavors
+    .filter((f) => f.imageUrlProduct)
     .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))[0]
-
-  // Fallback: if none have an image, pick any flavor
-  if (!topFlavor && product.flavors.length > 0) {
-    topFlavor = product.flavors[0]
-  }
 
   const price = topFlavor?.price ?? 0
   const salePrice = topFlavor?.salePrice ?? 0
@@ -41,14 +36,15 @@ export default function ProductCard({ product }: ProductCardProps) {
           height={400}
           className="h-52 sm:h-52 md:h-60 lg:h-72 xl:h-80 w-auto object-cover"
         />
+
         {isNew && (
-          <div className="absolute top-2 right-2 badge bg-green-500 text-white text-xs font-bold px-2 py-1">
+          <div className="absolute top-2 left-2 badge bg-green-500 text-white text-xs font-bold px-2 py-1">
             New
           </div>
         )}
         {hasSale && (
-          <div className="absolute top-2 left-2 badge bg-red-500 text-white text-xs font-bold px-2 py-1">
-            -{discountPercent}%
+          <div className="absolute top-2 right-2 badge bg-red-500 text-white text-xs font-bold px-2 py-1">
+            -{discountPercent}% OFF
           </div>
         )}
       </figure>
