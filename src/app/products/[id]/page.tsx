@@ -1,13 +1,14 @@
 import { prisma } from '@/lib/db/prisma'
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
-import PriceTag from '@/app/components/PriceTag'
 import ProductCategoryDisplay from '../../components/ProductCategoryDisplay'
-import ProductClient from './ProductClient' // new client component
-import { Flavor } from '@prisma/client'
+import ProductClient from './ProductClient' // client component
+
+interface Params {
+  id: string
+}
 
 interface ProductPageProps {
-  params: { id: string }
+  params: Params
 }
 
 async function getProduct(id: string) {
@@ -20,12 +21,12 @@ async function getProduct(id: string) {
   return product
 }
 
-export default async function ProductPage({
-  params: { id },
-}: ProductPageProps) {
+// Use destructuring of params with type annotation
+export default async function ProductPage({ params }: ProductPageProps) {
+  const { id } = params
   const product = await getProduct(id)
 
-  // Sort flavors by popularity first
+  // Sort flavors by popularity
   const sortedFlavors = product.flavors.sort(
     (a, b) => (b.popularity || 0) - (a.popularity || 0)
   )
@@ -33,7 +34,6 @@ export default async function ProductPage({
   return (
     <>
       {/* Product Details */}
-      {/* Client-side Flavor & Cart logic */}
       <ProductClient product={product} flavors={sortedFlavors} />
 
       {/* Similar & Manufacturer Products */}
