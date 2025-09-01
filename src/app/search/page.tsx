@@ -24,15 +24,16 @@ interface Product {
   flavors: Flavor[]
 }
 
+// 1. Update the interface to use Promise for searchParams
 interface SearchPageProps {
-  searchParams: { query: string }
+  searchParams: Promise<{ query: string }>
 }
 
-export default async function searchPage({
-  searchParams: { query },
-}: SearchPageProps) {
-  let products: Product[] = []
+export default async function searchPage({ searchParams }: SearchPageProps) {
+  // 2. Await the searchParams object
+  const { query } = await searchParams
 
+  let products: Product[] = []
   const lowerQuery = query.toLowerCase()
 
   if (lowerQuery === 'best sellers') {
@@ -47,7 +48,7 @@ export default async function searchPage({
           ? Math.max(...p.flavors.map((f) => f.popularity || 0))
           : 0,
       }))
-      .sort((a, b) => b.maxPopularity! - a.maxPopularity!)
+      .sort((a, b) => (b.maxPopularity || 0) - (a.maxPopularity || 0))
   } else if (lowerQuery === 'sale') {
     const allProducts = await prisma.product.findMany({
       include: { flavors: true },
