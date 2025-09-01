@@ -1,8 +1,32 @@
 import { prisma } from '@/lib/db/prisma'
 
+// Define an interface for the incoming flavor data
+interface FlavorData {
+  name: string
+  imageUrlProduct: string
+  imageUrlNutrition: string
+  size?: string
+  no_of_servings?: string
+  unitsAvailable: number
+  price: number
+  salePrice?: number
+  popularity?: number
+}
+
+// Define an interface for the entire request body
+interface RequestData {
+  manufacturer: string
+  name: string
+  category: string
+  description?: string
+  canadian?: boolean
+  flavors: FlavorData[]
+}
+
 export async function POST(req: Request) {
   try {
-    const data = await req.json()
+    // Cast the request body to the defined type
+    const data: RequestData = await req.json()
 
     // 1️⃣ Create product first
     const product = await prisma.product.create({
@@ -17,7 +41,8 @@ export async function POST(req: Request) {
 
     if (Array.isArray(data.flavors) && data.flavors.length > 0) {
       await prisma.flavor.createMany({
-        data: data.flavors.map((f) => ({
+        // TypeScript now knows 'f' is a 'FlavorData' object
+        data: data.flavors.map((f: FlavorData) => ({
           name: f.name,
           imageUrlProduct: f.imageUrlProduct,
           imageUrlNutrition: f.imageUrlNutrition,
