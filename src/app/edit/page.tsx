@@ -105,7 +105,7 @@ export default function ManageProductsPage() {
   const handleFlavorChange = (
     index: number,
     field: keyof FlavorInput,
-    value: any
+    value: string | number
   ) => {
     if (!editProduct) return
     const flavors = editProduct.flavors ? [...editProduct.flavors] : []

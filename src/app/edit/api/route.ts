@@ -1,6 +1,19 @@
 import { prisma } from '@/lib/db/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
+// Define a type for creating a flavor
+type FlavorInput = {
+  name: string
+  imageUrlProduct: string
+  imageUrlNutrition: string
+  size?: string
+  no_of_servings?: string
+  unitsAvailable?: number
+  popularity?: number
+  price?: number
+  salePrice?: number
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search') || ''
@@ -53,7 +66,7 @@ export async function PUT(req: NextRequest) {
     if (Array.isArray(flavors)) {
       await prisma.flavor.deleteMany({ where: { productId: id } })
       await prisma.flavor.createMany({
-        data: flavors.map((f: any) => ({
+        data: flavors.map((f: FlavorInput) => ({
           ...f,
           productId: id,
         })),
