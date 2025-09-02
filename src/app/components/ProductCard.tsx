@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { ProductWithExtras } from '../search/page' // or put the type in a shared file
 
 interface ProductCardProps {
-  product: ProductWithExtras
+  product: Product & { flavors: Flavor[] }
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
