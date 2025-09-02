@@ -1,27 +1,12 @@
 import { prisma } from '@/lib/db/prisma'
 import ProductCard from '../components/ProductCard'
+import { Product, Flavor } from '@prisma/client'
 
-interface Flavor {
-  id: string
-  name: string
-  imageUrlProduct: string
-  imageUrlNutrition: string
-  size?: string
-  no_of_servings?: string
-  unitsAvailable: number
-  price: number
-  salePrice?: number
-  popularity?: number
-}
-
-interface Product {
-  id: string
-  manufacturer: string
-  name: string
-  category: string
-  description?: string
-  canadian: boolean
+export type ProductWithExtras = Product & {
   flavors: Flavor[]
+  imageUrl: string
+  price: number
+  salePrice?: number | null
 }
 
 // 1. Update the interface to use Promise for searchParams
@@ -33,7 +18,8 @@ export default async function searchPage({ searchParams }: SearchPageProps) {
   // 2. Await the searchParams object
   const { query } = await searchParams
 
-  let products: Product[] = []
+  type ProductWithFlavors = Product & { flavors: Flavor[] }
+  let products: ProductWithFlavors[] = []
   const lowerQuery = query.toLowerCase()
 
   if (lowerQuery === 'best sellers') {
@@ -140,17 +126,15 @@ export default async function searchPage({ searchParams }: SearchPageProps) {
           const topFlavor = product.flavors.sort(
             (a, b) => (b.popularity || 0) - (a.popularity || 0)
           )[0]
-          return (
-            <ProductCard
-              key={product.id}
-              product={{
-                ...product,
-                imageUrl: topFlavor?.imageUrlProduct || '/placeholder.png',
-                price: topFlavor?.price || 0,
-                salePrice: topFlavor?.salePrice,
-              }}
-            />
-          )
+
+          const productWithExtras: ProductWithExtras = {
+            ...product,
+            imageUrl: topFlavor?.imageUrlProduct || '/placeholder.png',
+            price: topFlavor?.price || 0,
+            salePrice: topFlavor?.salePrice,
+          }
+
+          return <ProductCard key={product.id} product={productWithExtras} />
         })}
       </div>
     </div>

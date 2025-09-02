@@ -46,7 +46,7 @@ export default function ProductClient({
       type: 'nutrition',
       url: selectedFlavor.imageUrlNutrition,
     },
-  ].filter(Boolean)
+  ].filter((item): item is { type: string; url: string } => item !== null)
 
   return (
     <div className="flex justify-center items-center px-4 py-8">
