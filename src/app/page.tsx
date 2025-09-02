@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/db/prisma'
 import Image from 'next/image'
 import ProductCard from './components/ProductCard'
-import ByCategoryCard from './components/ByCategoryCard'
 import Carousel from './components/Carousel'
 import ProductCategoryDisplay from './components/ProductCategoryDisplay'
 

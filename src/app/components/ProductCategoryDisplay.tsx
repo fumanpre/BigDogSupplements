@@ -50,7 +50,7 @@ export default async function ProductCategoryDisplay({
       })
       .sort((a, b) => b.maxSalePrice - a.maxSalePrice)
       .slice(0, 4)
-  } else if (categoryName === 'Similar Products') {
+  } else if (categoryName === 'Similar Products' && productItself) {
     // ✅ Products in the same category but exclude itself
     const allProducts = await prisma.product.findMany({
       include: { flavors: true },
@@ -67,7 +67,7 @@ export default async function ProductCategoryDisplay({
         return maxB - maxA
       })
       .slice(0, 4)
-  } else if (categoryName === productItself.manufacturer) {
+  } else if (productItself && categoryName === productItself.manufacturer) {
     // ✅ Products from same manufacturer, excluding itself
     const allProducts = await prisma.product.findMany({
       include: { flavors: true },
